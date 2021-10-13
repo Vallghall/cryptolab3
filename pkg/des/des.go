@@ -2,30 +2,29 @@ package des
 
 import (
 	"crypto/des"
+	"github.com/andreburgaud/crypt2go/ecb"
 )
 
 func Encrypt(data, byteKey []byte) ([]byte, error) {
 	data = validateTextLength(data)
-	key, err := des.NewCipher(byteKey)
+	cipher, err := des.NewCipher(byteKey)
 	if err != nil {
 		return nil, err
 	}
 	encrypted := make([]byte, len(data))
-	for bs, be := 0, des.BlockSize; bs < len(data); bs, be = bs+des.BlockSize, be+des.BlockSize {
-		key.Encrypt(encrypted[bs:be], data[bs:be])
-	}
+	mode := ecb.NewECBEncrypter(cipher)
+	mode.CryptBlocks(encrypted, data)
 	return encrypted, nil
 }
 
 func Decrypt(data, byteKey []byte) ([]byte, error) {
-	key, err := des.NewCipher(byteKey)
+	cipher, err := des.NewCipher(byteKey)
 	if err != nil {
 		return nil, err
 	}
 	decrypted := make([]byte, len(data))
-	for bs, be := 0, des.BlockSize; bs < len(data); bs, be = bs+des.BlockSize, be+des.BlockSize {
-		key.Decrypt(decrypted[bs:be], data[bs:be])
-	}
+	mode := ecb.NewECBDecrypter(cipher)
+	mode.CryptBlocks(decrypted, data)
 	return decrypted, nil
 }
 
