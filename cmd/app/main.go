@@ -2,18 +2,31 @@ package main
 
 import (
 	"cryptolab3/pkg/des"
-	"fmt"
+	"io/ioutil"
 	"log"
 )
 
 func main() {
-	text := "some_exampletext"
-	key := "abcdabcd"
-	result, err := des.Encrypt([]byte(text), []byte(key))
+	text, err := ioutil.ReadFile("from.txt")
 	if err != nil {
 		log.Fatalln(err)
 	}
-	fmt.Println(result)
-	decrypted, _ := des.Decrypt(result, []byte(key))
-	fmt.Println(string(decrypted))
+	key, err := ioutil.ReadFile("key.txt")
+	if err != nil {
+		log.Fatalln(err)
+	}
+	result, err := des.Encrypt(text, key)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	if err = ioutil.WriteFile("to.txt", result, 0755); err != nil {
+		log.Fatalln(err)
+	}
+	decrypted, err := des.Decrypt(result, key)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	if err = ioutil.WriteFile("after.txt", decrypted, 0755); err != nil {
+		log.Fatalln(err)
+	}
 }
